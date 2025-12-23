@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import time
-from passing_stats import obtener_stats_nfl_live  # Importamos tu función robot
+from passing_stats import obtener_stats_nfl_live  
 
 def cargar_estilos_css():
     st.markdown("""
@@ -128,19 +128,18 @@ if df is not None:
     col6.metric("Average", f'{leader_yds['Yds'] / leader_yds['G']} yds')
 
 
-    st.divider() # Una línea separadora visual
+    st.divider()
 
     # --- FILTROS INTERACTIVOS ---
     # Barra lateral para filtrar por equipo
-   # 1. Eliminamos filas donde el Equipo ('Tm') sea nulo (como la fila de promedios)
     df = df.dropna(subset=['Tm'])
     
-    # 2. Nos aseguramos de que todos sean texto (por si se coló algún número)
+    # Asegurarse de que todo sea texto 
     df['Tm'] = df['Tm'].astype(str)
 
     df = df[~df['Tm'].str.contains("2TM", na=False)]
 
-    # 3. Ahora sí podemos ordenar sin que explote
+    # Ordenar
     equipos = sorted(df['Tm'].unique())
     # ----------------------------
 
@@ -149,7 +148,7 @@ if df is not None:
     if equipo_seleccionado:
         df_display = df[df['Tm'].isin(equipo_seleccionado)]
     else:
-        df_display = df # Si no seleccionan nada, mostramos todo
+        df_display = df 
 
   
 
@@ -157,7 +156,7 @@ if df is not None:
     # --- VISUALIZACIÓN GRÁFICA ---
     st.subheader("Yardas vs Touchdowns")
     
-    # Gráfico de dispersión simple integrado en Streamlit
+    # Gráfico de barras
     st.bar_chart(
         df_display,
         x='Yds',
