@@ -8,50 +8,58 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-import shutil # <--- Importante para buscar el navegador
+import shutil  # Para buscar archivos en el sistema
 
 def obtener_stats_nfl_live():
     url = "https://www.pro-football-reference.com/years/2025/passing.htm"
     
-    # 1. CONFIGURACIÓN DEL NAVEGADOR (MODO NUBE)
+    # 1. OPCIONES DEL NAVEGADOR
     options = Options()
-    options.add_argument("--headless") 
-    options.add_argument("--no-sandbox")             # <--- CRUCIAL: Evita error de permisos
-    options.add_argument("--disable-dev-shm-usage")  # <--- CRUCIAL: Evita falta de memoria
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
-    
-    # Truco para evitar detección de bot
+    options.add_argument("--window-size=1920,1080") # A veces ayuda a que no detecten bot
     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 
-    # 2. LOCALIZAR EL NAVEGADOR (Chromium vs Chrome)
-    # Streamlit Cloud instala 'chromium', pero Selenium busca 'google-chrome'.
-    # Esto busca dónde está instalado chromium y se lo dice a Selenium.
-    chrome_bin = shutil.which("chromium") or shutil.which("chromium-browser")
-    if chrome_bin:
-        options.binary_location = chrome_bin
-    # Si no lo encuentra (ej. en tu Mac), usará el default, así que no rompe tu local.
+    # 2. INTELIGENCIA DE UBICACIÓN (LOCAL VS NUBE)
+    # Buscamos si existe 'chromium' y 'chromedriver' instalados en el sistema
+    chromium_path = shutil.which("chromium") or shutil.which("chromium-browser")
+    chromedriver_path = shutil.which("chromedriver")
 
-    # 3. INICIAR EL DRIVER
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=options)
-    
+    if chromium_path and chromedriver_path:
+        # ESTAMOS EN LA NUBE (Streamlit Cloud) ☁️
+        print(f"☁️ Usando configuración de Nube:\nBrowser: {chromium_path}\nDriver: {chromedriver_path}")
+        options.binary_location = chromium_path
+        service = Service(executable_path=chromedriver_path)
+    else:
+        # ESTAMOS EN LOCAL (Tu Mac) 💻
+        print("💻 Usando configuración Local (Mac/Windows)")
+        # Aquí sí dejamos que el Manager descargue lo que necesite
+        service = Service(ChromeDriverManager().install())
+
+    # 3. INICIAR DRIVER
     try:
-        # NAVEGAR A LA PÁGINA
-        driver.get(url)
-        print("⏳ Esperando a que cargue la tabla (3 segundos)...")
-        time.sleep(3) # Damos tiempo a que el JavaScript construya la tabla
+        driver = webdriver.Chrome(service=service, options=options)
         
-        # EXTRAER EL HTML YA RENDERIZADO
-        html_vivo = driver.page_source
+        # ... RESTO DE TU LÓGICA DE SIEMPRE ...
+        driver.get(url)
+        # ... etc ...
+        
+        # (Asegúrate de pegar aquí el resto de tu función original: BeautifulSoup, Pandas, return df)
+        
+        # --- EJEMPLO RÁPIDO DE LO QUE SIGUE (NO COPIES ESTO SI YA LO TIENES): ---
+        import time
+        time.sleep(3)
+        html = driver.page_source
+        driver.quit()
+        # ... procesamiento pandas ...
+        # return df
+        # -----------------------------------------------------------------------
         
     except Exception as e:
-        print(f"❌ Error en el navegador: {e}")
-        driver.quit()
+        print(f"❌ Error crítico iniciando Selenium: {e}")
         return None
-    
-
-    driver.quit()
-
 
     print("Info capturada. Procesando con Pandas...")
     
