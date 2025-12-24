@@ -176,3 +176,5 @@ if df is not None:
 else:
     st.error("Hubo un error al conectar con el servidor de la NFL.")
 
+
+
