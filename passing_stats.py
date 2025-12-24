@@ -51,7 +51,7 @@ def obtener_stats_nfl_live():
         # --- EJEMPLO RÁPIDO DE LO QUE SIGUE (NO COPIES ESTO SI YA LO TIENES): ---
         import time
         time.sleep(3)
-        html = driver.page_source
+        html_vivo = driver.page_source
         driver.quit()
         # ... procesamiento pandas ...
         # return df
