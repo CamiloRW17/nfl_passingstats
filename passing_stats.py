@@ -5,23 +5,35 @@ import time
 
 # IMPORTS PARA SELENIUM
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.options import Options
+import shutil # <--- Importante para buscar el navegador
 
 def obtener_stats_nfl_live():
     url = "https://www.pro-football-reference.com/years/2025/passing.htm"
     
-    print(f"🚀 Iniciando obtención de datos automática {url}")
-
-    # 1. CONFIGURACIÓN DEL NAVEGADOR
+    # 1. CONFIGURACIÓN DEL NAVEGADOR (MODO NUBE)
     options = Options()
-    options.add_argument("--headless")  
-    options.add_argument("--disable-blink-features=AutomationControlled") 
+    options.add_argument("--headless") 
+    options.add_argument("--no-sandbox")             # <--- CRUCIAL: Evita error de permisos
+    options.add_argument("--disable-dev-shm-usage")  # <--- CRUCIAL: Evita falta de memoria
+    options.add_argument("--disable-gpu")
+    
+    # Truco para evitar detección de bot
     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 
-    # CHROME AUTOMÁTICO
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    # 2. LOCALIZAR EL NAVEGADOR (Chromium vs Chrome)
+    # Streamlit Cloud instala 'chromium', pero Selenium busca 'google-chrome'.
+    # Esto busca dónde está instalado chromium y se lo dice a Selenium.
+    chrome_bin = shutil.which("chromium") or shutil.which("chromium-browser")
+    if chrome_bin:
+        options.binary_location = chrome_bin
+    # Si no lo encuentra (ej. en tu Mac), usará el default, así que no rompe tu local.
+
+    # 3. INICIAR EL DRIVER
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
     
     try:
         # NAVEGAR A LA PÁGINA
