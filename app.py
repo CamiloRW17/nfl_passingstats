@@ -83,7 +83,7 @@ def cargar_estilos_css():
         </style>
     """, unsafe_allow_html=True)
 
-# 1. CONFIGURACIÓN DE LA PÁGINA
+# CONFIGURACIÓN DE LA PÁGINA
 st.set_page_config(
     page_title="NFL Stats 2025 Live",
     page_icon="🏈",
