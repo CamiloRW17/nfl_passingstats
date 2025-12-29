@@ -118,7 +118,7 @@ if df is not None:
 
     col1, col2, col3, col4, col5, col6,  = st.columns(6)
     
-    leader_yds = df.iloc[0] # El primero de la lista (ya está ordenado por yardas)
+    leader_yds = df.iloc[0] # El primero de la lista
     
     col1.metric("Líder en Yardas", leader_yds['Player'])
     col2.metric("Yds", f"{leader_yds['Yds']} Yds" )

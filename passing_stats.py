@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from io import StringIO
 import time
 
-# IMPORTS PARA SELENIUM
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -13,7 +13,7 @@ import shutil
 def obtener_stats_nfl_live():
     url = "https://www.pro-football-reference.com/years/2025/passing.htm"
     
-    # 1. OPCIONES DEL NAVEGADOR
+
     options = Options()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
@@ -22,12 +22,11 @@ def obtener_stats_nfl_live():
     options.add_argument("--window-size=1920,1080") 
     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 
-    # 2. INTELIGENCIA DE UBICACIÓN 
+
     chromium_path = shutil.which("chromium") or shutil.which("chromium-browser")
     chromedriver_path = shutil.which("chromedriver")
 
     if chromium_path and chromedriver_path:
-        # Streamlit Cloud
         print(f"☁️ Usando configuración de Nube:\nBrowser: {chromium_path}\nDriver: {chromedriver_path}")
         options.binary_location = chromium_path
         service = Service(executable_path=chromedriver_path)
@@ -35,7 +34,6 @@ def obtener_stats_nfl_live():
         print("💻 Usando configuración Local (Mac/Windows)")
         service = Service(ChromeDriverManager().install())
 
-    # 3. INICIAR DRIVER
     try:
         driver = webdriver.Chrome(service=service, options=options)
         
@@ -47,7 +45,7 @@ def obtener_stats_nfl_live():
         time.sleep(3)
         html_vivo = driver.page_source
         driver.quit()
-        # procesamiento pandas
+
         
     except Exception as e:
         print(f"❌ Error crítico iniciando Selenium: {e}")
@@ -66,7 +64,7 @@ def obtener_stats_nfl_live():
     dfs = pd.read_html(html_en_memoria)
     df = dfs[0]
 
-    # LIMPIEZA DE DATOS
+
     if isinstance(df.columns, pd.MultiIndex):
         df.columns = df.columns.droplevel(0)
         
